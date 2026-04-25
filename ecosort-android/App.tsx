@@ -8,6 +8,7 @@ import { MultiResultView } from './src/components/MultiResultView';
 import { StatsScreen } from './src/components/StatsScreen';
 import { classifyImage } from './src/api/classify';
 import { classifyMulti } from './src/api/classifyMulti';
+import { storeMemory } from './src/api/backboard';
 import { getItemImpact } from './src/lib/impact';
 import { saveScan } from './src/lib/history';
 import { Classification, ItemImpact, MultiClassification } from './src/types';
@@ -61,6 +62,15 @@ export default function App() {
         weightDiverted: itemImpact.weightDiverted,
       });
 
+      storeMemory({
+        item: classification.item,
+        category: classification.category,
+        kwhSaved: itemImpact.kwhSaved,
+        co2Saved: itemImpact.co2Saved,
+        weightDiverted: itemImpact.weightDiverted,
+        timestamp: Date.now(),
+      });
+
       const newCount = await incrementSortedCount();
       setResult(classification);
       setImpact(itemImpact);
@@ -90,6 +100,14 @@ export default function App() {
           kwhSaved: imp.kwhSaved,
           co2Saved: imp.co2Saved,
           weightDiverted: imp.weightDiverted,
+        });
+        storeMemory({
+          item: items[i].item,
+          category: items[i].category,
+          kwhSaved: imp.kwhSaved,
+          co2Saved: imp.co2Saved,
+          weightDiverted: imp.weightDiverted,
+          timestamp: now,
         });
       }
       await incrementSortedCount();
