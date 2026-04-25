@@ -17,23 +17,32 @@ const OVERLAY_OPACITY: Record<string, string> = {
   landfill:  'rgba(255,184,108,0.25)',
 };
 
+const fallbackBbox = (index: number, total: number) => {
+  const cols = Math.ceil(Math.sqrt(total));
+  const col = index % cols;
+  const row = Math.floor(index / cols);
+  const size = Math.min(0.35, 0.9 / cols);
+  return { x: 0.05 + col * (0.9 / cols), y: 0.05 + row * (0.9 / Math.ceil(total / cols)), width: size, height: size * 1.2 };
+};
+
 export const MultiResultView: React.FC<Props> = ({ items, imageUri, totalSorted, onReset }) => (
   <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
     <View style={styles.imageWrapper}>
       <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
       {items.map((item, i) => {
         const meta = getCategoryMeta(item.category);
-        if (!item.bbox) return null;
+        const bbox = item.bbox ?? fallbackBbox(i, items.length);
+        if (!bbox) return null;
         return (
           <View
             key={i}
             style={[
               styles.bbox,
               {
-                left:   `${item.bbox.x * 100}%` as any,
-                top:    `${item.bbox.y * 100}%` as any,
-                width:  `${item.bbox.width * 100}%` as any,
-                height: `${item.bbox.height * 100}%` as any,
+                left:   `${bbox.x * 100}%` as any,
+                top:    `${bbox.y * 100}%` as any,
+                width:  `${bbox.width * 100}%` as any,
+                height: `${bbox.height * 100}%` as any,
                 borderColor: meta.color,
                 backgroundColor: OVERLAY_OPACITY[item.category],
               },

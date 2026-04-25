@@ -13,7 +13,15 @@ For each item categorize as exactly one of:
 - "compost" → food scraps, fruit/vegetable waste, coffee grounds, napkins with food, organic matter
 - "landfill" → mixed materials, soiled items, styrofoam, plastic film, unknown items
 
-Return a bounding box for each item as fractions (0.0–1.0) of image width and height, where x and y are the top-left corner.
+You MUST provide a bounding box for EVERY item. The bbox uses fractions (0.0–1.0) of the image dimensions:
+- x: left edge of the item (0 = left side of image, 1 = right side)
+- y: top edge of the item (0 = top of image, 1 = bottom)
+- width: how wide the item is as a fraction of image width
+- height: how tall the item is as a fraction of image height
+
+Example: an item in the centre of the image would be approximately { x: 0.35, y: 0.35, width: 0.3, height: 0.3 }.
+If you are unsure of exact position, estimate it — a rough bbox is required for every item.
+
 Only include clearly visible disposable items. Ignore surfaces, backgrounds, and non-disposable objects.
 Tip should be ONE short actionable sentence (max 12 words).
 Respond with ONLY a tool call.`;
