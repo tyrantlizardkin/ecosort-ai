@@ -2,25 +2,20 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 const SYSTEM_PROMPT = `You are EcoSort AI, a waste classification assistant for University of Arizona students.
-Look at the image and identify EVERY visible waste-related / disposable object. Be thorough — list each distinct item separately, even if multiple of the same type appear.
+Look at the image and identify ALL visible disposable items.
 
-For each item, categorize as exactly one of:
-- "recycling" → clean plastic bottles, aluminum cans, glass, clean paper, cardboard, metal
+For each item categorize as exactly one of:
+- "recycling" → plastic bottles, aluminum cans, glass, clean paper, cardboard, metal
 - "compost" → food scraps, fruit/vegetable waste, coffee grounds, napkins with food, organic matter
-- "landfill" → mixed materials, soiled/contaminated items (food-soiled paper, greasy pizza boxes), styrofoam, plastic film, unknown items
+- "landfill" → mixed materials, soiled items, styrofoam, plastic film, unknown items
 
-Rules:
-- Contaminated recyclables → landfill
-- When unsure → landfill (avoid contamination)
-- Confidence is 0-100
-- "why" is ONE short clause explaining the material/reason (max 14 words)
-- "tip" is ONE short actionable sentence (max 12 words)
-
+Return a bounding box for each item as fractions (0.0–1.0) of image width and height, where x and y are the top-left corner.
+Only include clearly visible disposable items. Ignore surfaces, backgrounds, and non-disposable objects.
+Tip should be ONE short actionable sentence (max 12 words).
 Respond with ONLY a tool call.`;
 
 serve(async (req) => {
@@ -51,7 +46,7 @@ serve(async (req) => {
           {
             role: "user",
             content: [
-              { type: "text", text: "List ALL visible waste-related objects and classify each one." },
+              { type: "text", text: "Identify all disposable items in this image with their bounding boxes." },
               { type: "image_url", image_url: { url: image } },
             ],
           },
@@ -61,26 +56,32 @@ serve(async (req) => {
             type: "function",
             function: {
               name: "classify_items",
-              description: "Return the disposal classification for every detected item.",
+              description: "Return all detected disposable items with classifications and bounding boxes.",
               parameters: {
                 type: "object",
                 properties: {
                   items: {
                     type: "array",
-                    description: "Every detected waste item.",
                     items: {
                       type: "object",
                       properties: {
-                        item: { type: "string", description: "Short name of detected item" },
-                        category: {
-                          type: "string",
-                          enum: ["recycling", "compost", "landfill"],
-                        },
+                        item:       { type: "string", description: "Short name of the item" },
+                        category:   { type: "string", enum: ["recycling", "compost", "landfill"] },
                         confidence: { type: "number", description: "0-100" },
-                        why: { type: "string", description: "Short reason / material explanation" },
-                        tip: { type: "string", description: "One short disposal tip" },
+                        tip:        { type: "string", description: "One short disposal tip, max 12 words" },
+                        bbox: {
+                          type: "object",
+                          properties: {
+                            x:      { type: "number", description: "Left edge as fraction 0-1" },
+                            y:      { type: "number", description: "Top edge as fraction 0-1" },
+                            width:  { type: "number", description: "Width as fraction 0-1" },
+                            height: { type: "number", description: "Height as fraction 0-1" },
+                          },
+                          required: ["x", "y", "width", "height"],
+                          additionalProperties: false,
+                        },
                       },
-                      required: ["item", "category", "confidence", "why", "tip"],
+                      required: ["item", "category", "confidence", "tip", "bbox"],
                       additionalProperties: false,
                     },
                   },
