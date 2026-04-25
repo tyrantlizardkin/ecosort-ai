@@ -28,10 +28,10 @@ export const StatsScreen: React.FC<Props> = ({ onBack }) => {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.statsGrid}>
-          <StatCard label="kWh Saved" value={totals.kwhSaved.toFixed(2)} unit="kWh" color="#16A34A" />
-          <StatCard label="CO₂ Avoided" value={totals.co2Saved.toFixed(2)} unit="lbs" color="#2563EB" />
-          <StatCard label="Diverted" value={totals.weightDiverted.toFixed(2)} unit="lbs" color="#9333EA" />
-          <StatCard label="Items Sorted" value={String(totals.scanCount)} unit="total" color="#EA580C" />
+          <StatCard label="kWh Saved"    value={totals.kwhSaved.toFixed(2)}      unit="kWh"   color="#8BE9FD" />
+          <StatCard label="CO₂ Avoided"  value={totals.co2Saved.toFixed(2)}      unit="lbs"   color="#50FA7B" />
+          <StatCard label="Diverted"     value={totals.weightDiverted.toFixed(2)} unit="lbs"   color="#FFB86C" />
+          <StatCard label="Items Sorted" value={String(totals.scanCount)}         unit="total" color="#BD93F9" />
         </View>
 
         <Text style={styles.sectionTitle}>Scan History</Text>
@@ -51,10 +51,10 @@ export const StatsScreen: React.FC<Props> = ({ onBack }) => {
                 <Text style={styles.scanMeta}>{meta.label} · {date}</Text>
               </View>
               {scan.kwhSaved > 0 && (
-                <Text style={styles.scanKwh}>⚡ {scan.kwhSaved.toFixed(2)} kWh</Text>
+                <Text style={styles.scanStat}>⚡ {scan.kwhSaved.toFixed(2)}</Text>
               )}
               {scan.co2Saved > 0 && scan.kwhSaved === 0 && (
-                <Text style={styles.scanKwh}>🌿 {scan.co2Saved.toFixed(2)} lbs CO₂</Text>
+                <Text style={styles.scanStat}>🌿 {scan.co2Saved.toFixed(2)}</Text>
               )}
             </View>
           );
@@ -75,31 +75,26 @@ const StatCard: React.FC<{ label: string; value: string; unit: string; color: st
 );
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F0FDF4', paddingTop: 16 },
+  container: { flex: 1, backgroundColor: '#282A36', paddingTop: 16 },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingBottom: 16 },
   backBtn: { marginRight: 16 },
-  backBtnText: { fontSize: 16, color: '#16A34A', fontWeight: '600' },
-  title: { fontSize: 22, fontWeight: '800', color: '#111827' },
+  backBtnText: { fontSize: 16, fontFamily: 'KumbhSans_600SemiBold', color: '#BD93F9' },
+  title: { fontSize: 22, fontFamily: 'KumbhSans_800ExtraBold', color: '#F8F8F2' },
   statsGrid: { flexDirection: 'row', flexWrap: 'wrap', padding: 16, gap: 12 },
-  statCard: {
-    width: '46%', backgroundColor: '#fff', borderRadius: 20,
-    padding: 20, alignItems: 'center',
-    shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 12, elevation: 3,
-  },
-  statValue: { fontSize: 28, fontWeight: '800', lineHeight: 32 },
-  statUnit: { fontSize: 12, color: '#6B7280', marginTop: 2 },
-  statLabel: { fontSize: 11, color: '#9CA3AF', marginTop: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#111827', paddingHorizontal: 24, marginBottom: 12 },
-  emptyText: { textAlign: 'center', color: '#9CA3AF', fontSize: 14, paddingVertical: 32 },
+  statCard: { width: '46%', backgroundColor: '#44475A', borderRadius: 20, padding: 20, alignItems: 'center' },
+  statValue: { fontSize: 28, fontFamily: 'KumbhSans_800ExtraBold', lineHeight: 32 },
+  statUnit: { fontSize: 12, fontFamily: 'KumbhSans_400Regular', color: '#6272A4', marginTop: 2 },
+  statLabel: { fontSize: 11, fontFamily: 'KumbhSans_600SemiBold', color: '#6272A4', marginTop: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
+  sectionTitle: { fontSize: 16, fontFamily: 'KumbhSans_700Bold', color: '#F8F8F2', paddingHorizontal: 24, marginBottom: 12 },
+  emptyText: { textAlign: 'center', fontFamily: 'KumbhSans_400Regular', color: '#6272A4', fontSize: 14, paddingVertical: 32 },
   scanRow: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#fff', marginHorizontal: 16, marginBottom: 8,
+    backgroundColor: '#44475A', marginHorizontal: 16, marginBottom: 8,
     borderRadius: 16, padding: 16,
-    shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
   },
-  scanDot: { width: 12, height: 12, borderRadius: 6, marginRight: 12 },
+  scanDot: { width: 10, height: 10, borderRadius: 5, marginRight: 12 },
   scanInfo: { flex: 1 },
-  scanItem: { fontSize: 14, fontWeight: '600', color: '#111827', textTransform: 'capitalize' },
-  scanMeta: { fontSize: 12, color: '#9CA3AF', marginTop: 2 },
-  scanKwh: { fontSize: 12, fontWeight: '600', color: '#374151' },
+  scanItem: { fontSize: 14, fontFamily: 'KumbhSans_600SemiBold', color: '#F8F8F2', textTransform: 'capitalize' },
+  scanMeta: { fontSize: 12, fontFamily: 'KumbhSans_400Regular', color: '#6272A4', marginTop: 2 },
+  scanStat: { fontSize: 12, fontFamily: 'KumbhSans_600SemiBold', color: '#BD93F9' },
 });
