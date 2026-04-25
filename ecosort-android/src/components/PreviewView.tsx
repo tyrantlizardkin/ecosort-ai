@@ -5,10 +5,11 @@ interface Props {
   imageUri: string;
   loading: boolean;
   onAnalyze: () => void;
+  onAnalyzeMulti: () => void;
   onDiscard: () => void;
 }
 
-export const PreviewView: React.FC<Props> = ({ imageUri, loading, onAnalyze, onDiscard }) => (
+export const PreviewView: React.FC<Props> = ({ imageUri, loading, onAnalyze, onAnalyzeMulti, onDiscard }) => (
   <View style={styles.container}>
     <View style={styles.imageWrapper}>
       <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
@@ -26,18 +27,26 @@ export const PreviewView: React.FC<Props> = ({ imageUri, loading, onAnalyze, onD
     </View>
 
     <TouchableOpacity
-      style={[styles.analyzeBtn, loading && styles.analyzeBtnDisabled]}
+      style={[styles.analyzeBtn, loading && styles.btnDisabled]}
       onPress={onAnalyze}
       disabled={loading}
     >
       <Text style={styles.analyzeBtnText}>{loading ? 'Analyzing...' : 'Analyze Item'}</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity
+      style={[styles.multiBtn, loading && styles.btnDisabled]}
+      onPress={onAnalyzeMulti}
+      disabled={loading}
+    >
+      <Text style={styles.multiBtnText}>{loading ? 'Analyzing...' : 'Multi Item Analysis'}</Text>
     </TouchableOpacity>
   </View>
 );
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 24, justifyContent: 'center', backgroundColor: '#282A36' },
-  imageWrapper: { borderRadius: 24, overflow: 'hidden', aspectRatio: 4 / 3, marginBottom: 20 },
+  imageWrapper: { borderRadius: 24, overflow: 'hidden', aspectRatio: 4 / 3, marginBottom: 16 },
   image: { width: '100%', height: '100%' },
   overlay: {
     ...StyleSheet.absoluteFillObject,
@@ -54,7 +63,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center',
   },
   discardBtnText: { fontSize: 16, color: '#F8F8F2' },
-  analyzeBtn: { backgroundColor: '#BD93F9', borderRadius: 16, height: 56, justifyContent: 'center', alignItems: 'center' },
-  analyzeBtnDisabled: { backgroundColor: 'rgba(189,147,249,0.4)' },
+  analyzeBtn: { backgroundColor: '#BD93F9', borderRadius: 16, height: 56, justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
+  multiBtn: { backgroundColor: '#44475A', borderRadius: 16, height: 56, justifyContent: 'center', alignItems: 'center' },
+  btnDisabled: { opacity: 0.4 },
   analyzeBtnText: { fontSize: 16, fontFamily: 'KumbhSans_700Bold', color: '#282A36' },
+  multiBtnText: { fontSize: 16, fontFamily: 'KumbhSans_600SemiBold', color: '#F8F8F2' },
 });

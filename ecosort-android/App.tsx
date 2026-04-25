@@ -4,14 +4,16 @@ import { useFonts, KumbhSans_400Regular, KumbhSans_600SemiBold, KumbhSans_700Bol
 import { CaptureView } from './src/components/CaptureView';
 import { PreviewView } from './src/components/PreviewView';
 import { ResultCard } from './src/components/ResultCard';
+import { MultiResultView } from './src/components/MultiResultView';
 import { StatsScreen } from './src/components/StatsScreen';
 import { classifyImage } from './src/api/classify';
+import { classifyMulti } from './src/api/classifyMulti';
 import { getItemImpact } from './src/lib/impact';
 import { saveScan } from './src/lib/history';
-import { Classification, ItemImpact } from './src/types';
+import { Classification, ItemImpact, MultiClassification } from './src/types';
 import { getSortedCount, incrementSortedCount } from './src/lib/storage';
 
-type Phase = 'capture' | 'preview' | 'result' | 'stats';
+type Phase = 'capture' | 'preview' | 'result' | 'multi-result' | 'stats';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -26,6 +28,7 @@ export default function App() {
   const [imageBase64, setImageBase64] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Classification | null>(null);
+  const [multiItems, setMultiItems] = useState<MultiClassification[]>([]);
   const [impact, setImpact] = useState<ItemImpact>({ kwhSaved: 0, co2Saved: 0, weightDiverted: 0 });
   const [sortedCount, setSortedCount] = useState(0);
 
@@ -70,8 +73,41 @@ export default function App() {
     }
   };
 
+  const handleAnalyzeMulti = async () => {
+    setLoading(true);
+    try {
+      const dataUrl = `data:image/jpeg;base64,${imageBase64}`;
+      const items = await classifyMulti(dataUrl);
+
+      const now = Date.now();
+      for (let i = 0; i < items.length; i++) {
+        const imp = getItemImpact(items[i].item, items[i].category);
+        await saveScan({
+          id: String(now + i),
+          timestamp: now,
+          item: items[i].item,
+          category: items[i].category,
+          kwhSaved: imp.kwhSaved,
+          co2Saved: imp.co2Saved,
+          weightDiverted: imp.weightDiverted,
+        });
+      }
+      await incrementSortedCount();
+      const newCount = await getSortedCount();
+
+      setMultiItems(items);
+      setSortedCount(newCount);
+      setPhase('multi-result');
+    } catch (e: any) {
+      Alert.alert('Error', e?.message ?? 'Could not analyze image. Try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleReset = () => {
     setResult(null);
+    setMultiItems([]);
     setImageUri('');
     setImageBase64('');
     setPhase('capture');
@@ -87,6 +123,7 @@ export default function App() {
           imageUri={imageUri}
           loading={loading}
           onAnalyze={handleAnalyze}
+          onAnalyzeMulti={handleAnalyzeMulti}
           onDiscard={handleReset}
         />
       )}
@@ -98,6 +135,14 @@ export default function App() {
           impact={impact}
           onReset={handleReset}
           onViewStats={() => setPhase('stats')}
+        />
+      )}
+      {phase === 'multi-result' && (
+        <MultiResultView
+          items={multiItems}
+          imageUri={imageUri}
+          totalSorted={sortedCount}
+          onReset={handleReset}
         />
       )}
       {phase === 'stats' && (
