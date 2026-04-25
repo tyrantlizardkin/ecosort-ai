@@ -3,11 +3,14 @@ import { SafeAreaView, Alert, StyleSheet } from 'react-native';
 import { CaptureView } from './src/components/CaptureView';
 import { PreviewView } from './src/components/PreviewView';
 import { ResultCard } from './src/components/ResultCard';
+import { StatsScreen } from './src/components/StatsScreen';
 import { classifyImage } from './src/api/classify';
-import { Classification } from './src/types';
+import { getItemImpact } from './src/lib/impact';
+import { saveScan, getImpactTotals } from './src/lib/history';
+import { Classification, ItemImpact } from './src/types';
 import { getSortedCount, incrementSortedCount } from './src/lib/storage';
 
-type Phase = 'capture' | 'preview' | 'result';
+type Phase = 'capture' | 'preview' | 'result' | 'stats';
 
 export default function App() {
   const [phase, setPhase] = useState<Phase>('capture');
@@ -15,6 +18,7 @@ export default function App() {
   const [imageBase64, setImageBase64] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Classification | null>(null);
+  const [impact, setImpact] = useState<ItemImpact>({ kwhSaved: 0, co2Saved: 0, weightDiverted: 0 });
   const [sortedCount, setSortedCount] = useState(0);
 
   useEffect(() => {
@@ -32,8 +36,21 @@ export default function App() {
     try {
       const dataUrl = `data:image/jpeg;base64,${imageBase64}`;
       const classification = await classifyImage(dataUrl);
-      setResult(classification);
+      const itemImpact = getItemImpact(classification.item, classification.category);
+
+      await saveScan({
+        id: String(Date.now()),
+        timestamp: Date.now(),
+        item: classification.item,
+        category: classification.category,
+        kwhSaved: itemImpact.kwhSaved,
+        co2Saved: itemImpact.co2Saved,
+        weightDiverted: itemImpact.weightDiverted,
+      });
+
       const newCount = await incrementSortedCount();
+      setResult(classification);
+      setImpact(itemImpact);
       setSortedCount(newCount);
       setPhase('result');
     } catch (e: any) {
@@ -68,8 +85,13 @@ export default function App() {
           result={result}
           imageUri={imageUri}
           totalSorted={sortedCount}
+          impact={impact}
           onReset={handleReset}
+          onViewStats={() => setPhase('stats')}
         />
+      )}
+      {phase === 'stats' && (
+        <StatsScreen onBack={() => setPhase('result')} />
       )}
     </SafeAreaView>
   );
