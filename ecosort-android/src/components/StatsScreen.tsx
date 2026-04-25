@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, StyleSheet } from 'react-native';
 import { ImpactTotals, ScanRecord } from '../types';
 import { getAllScans, getImpactTotals } from '../lib/history';
 import { getCategoryMeta } from '../lib/categories';
+import { searchMemories, MemoryResult } from '../api/backboard';
 
 interface Props {
   onBack: () => void;
@@ -11,11 +12,27 @@ interface Props {
 export const StatsScreen: React.FC<Props> = ({ onBack }) => {
   const [totals, setTotals] = useState<ImpactTotals>({ kwhSaved: 0, co2Saved: 0, weightDiverted: 0, scanCount: 0 });
   const [scans, setScans] = useState<ScanRecord[]>([]);
+  const [query, setQuery] = useState('');
+  const [searching, setSearching] = useState(false);
+  const [memories, setMemories] = useState<MemoryResult[]>([]);
 
   useEffect(() => {
     getImpactTotals().then(setTotals);
     getAllScans().then(setScans);
   }, []);
+
+  const handleSearch = async () => {
+    if (!query.trim()) return;
+    setSearching(true);
+    try {
+      const results = await searchMemories(query.trim());
+      setMemories(results);
+    } catch {
+      setMemories([]);
+    } finally {
+      setSearching(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -33,6 +50,38 @@ export const StatsScreen: React.FC<Props> = ({ onBack }) => {
           <StatCard label="Diverted"     value={totals.weightDiverted.toFixed(2)} unit="lbs"   color="#FFB86C" />
           <StatCard label="Items Sorted" value={String(totals.scanCount)}         unit="total" color="#BD93F9" />
         </View>
+
+        <View style={styles.searchRow}>
+          <TextInput
+            style={styles.searchInput}
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Search your scan history..."
+            placeholderTextColor="#6272A4"
+            onSubmitEditing={handleSearch}
+            returnKeyType="search"
+          />
+          <TouchableOpacity style={styles.searchBtn} onPress={handleSearch} disabled={searching}>
+            {searching
+              ? <ActivityIndicator size="small" color="#282A36" />
+              : <Text style={styles.searchBtnText}>Go</Text>
+            }
+          </TouchableOpacity>
+        </View>
+
+        {memories.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Search Results</Text>
+            {memories.map(m => (
+              <View key={m.id} style={styles.memoryRow}>
+                <Text style={styles.memoryText}>{m.content}</Text>
+                {m.score != null && (
+                  <Text style={styles.memoryScore}>{Math.round(m.score * 100)}% match</Text>
+                )}
+              </View>
+            ))}
+          </>
+        )}
 
         <Text style={styles.sectionTitle}>Scan History</Text>
 
@@ -85,7 +134,20 @@ const styles = StyleSheet.create({
   statValue: { fontSize: 28, fontFamily: 'KumbhSans_800ExtraBold', lineHeight: 32 },
   statUnit: { fontSize: 12, fontFamily: 'KumbhSans_400Regular', color: '#6272A4', marginTop: 2 },
   statLabel: { fontSize: 11, fontFamily: 'KumbhSans_600SemiBold', color: '#6272A4', marginTop: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
+  searchRow: { flexDirection: 'row', marginHorizontal: 16, marginBottom: 16, gap: 8 },
+  searchInput: {
+    flex: 1, backgroundColor: '#44475A', borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12,
+    fontFamily: 'KumbhSans_400Regular', fontSize: 14, color: '#F8F8F2',
+  },
+  searchBtn: {
+    backgroundColor: '#BD93F9', borderRadius: 14, paddingHorizontal: 16,
+    justifyContent: 'center', alignItems: 'center', minWidth: 48,
+  },
+  searchBtnText: { fontFamily: 'KumbhSans_700Bold', fontSize: 14, color: '#282A36' },
   sectionTitle: { fontSize: 16, fontFamily: 'KumbhSans_700Bold', color: '#F8F8F2', paddingHorizontal: 24, marginBottom: 12 },
+  memoryRow: { backgroundColor: '#383A47', marginHorizontal: 16, marginBottom: 8, borderRadius: 14, padding: 14 },
+  memoryText: { fontSize: 13, fontFamily: 'KumbhSans_400Regular', color: '#F8F8F2', lineHeight: 20 },
+  memoryScore: { fontSize: 11, fontFamily: 'KumbhSans_600SemiBold', color: '#6272A4', marginTop: 6 },
   emptyText: { textAlign: 'center', fontFamily: 'KumbhSans_400Regular', color: '#6272A4', fontSize: 14, paddingVertical: 32 },
   scanRow: {
     flexDirection: 'row', alignItems: 'center',
