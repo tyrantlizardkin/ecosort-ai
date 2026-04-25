@@ -23,6 +23,7 @@ export const MultiResultView: React.FC<Props> = ({ items, imageUri, totalSorted,
       <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
       {items.map((item, i) => {
         const meta = getCategoryMeta(item.category);
+        if (!item.bbox) return null;
         return (
           <View
             key={i}
