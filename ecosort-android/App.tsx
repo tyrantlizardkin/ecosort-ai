@@ -6,6 +6,7 @@ import { PreviewView } from './src/components/PreviewView';
 import { ResultCard } from './src/components/ResultCard';
 import { MultiResultView } from './src/components/MultiResultView';
 import { StatsScreen } from './src/components/StatsScreen';
+import { GoalsScreen } from './src/components/GoalsScreen';
 import { classifyImage } from './src/api/classify';
 import { classifyMulti } from './src/api/classifyMulti';
 import { storeMemory } from './src/api/backboard';
@@ -14,7 +15,7 @@ import { saveScan } from './src/lib/history';
 import { Classification, ItemImpact, MultiClassification } from './src/types';
 import { getSortedCount, incrementSortedCount } from './src/lib/storage';
 
-type Phase = 'capture' | 'preview' | 'result' | 'multi-result' | 'stats';
+type Phase = 'capture' | 'preview' | 'result' | 'multi-result' | 'stats' | 'goals';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -164,7 +165,10 @@ export default function App() {
         />
       )}
       {phase === 'stats' && (
-        <StatsScreen onBack={() => setPhase('result')} />
+        <StatsScreen onBack={() => setPhase('result')} onViewGoals={() => setPhase('goals')} />
+      )}
+      {phase === 'goals' && (
+        <GoalsScreen onBack={() => setPhase('stats')} />
       )}
     </SafeAreaView>
   );

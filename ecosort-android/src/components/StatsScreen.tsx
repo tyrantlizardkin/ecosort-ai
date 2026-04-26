@@ -7,9 +7,10 @@ import { searchMemories, MemoryResult } from '../api/backboard';
 
 interface Props {
   onBack: () => void;
+  onViewGoals: () => void;
 }
 
-export const StatsScreen: React.FC<Props> = ({ onBack }) => {
+export const StatsScreen: React.FC<Props> = ({ onBack, onViewGoals }) => {
   const [totals, setTotals] = useState<ImpactTotals>({ kwhSaved: 0, co2Saved: 0, weightDiverted: 0, scanCount: 0 });
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [query, setQuery] = useState('');
@@ -68,6 +69,10 @@ export const StatsScreen: React.FC<Props> = ({ onBack }) => {
             }
           </TouchableOpacity>
         </View>
+
+        <TouchableOpacity style={styles.goalsBtn} onPress={onViewGoals}>
+          <Text style={styles.goalsBtnText}>📈 Monthly Goals</Text>
+        </TouchableOpacity>
 
         {memories.length > 0 && (
           <>
@@ -159,4 +164,6 @@ const styles = StyleSheet.create({
   scanItem: { fontSize: 14, fontFamily: 'KumbhSans_600SemiBold', color: '#F8F8F2', textTransform: 'capitalize' },
   scanMeta: { fontSize: 12, fontFamily: 'KumbhSans_400Regular', color: '#6272A4', marginTop: 2 },
   scanStat: { fontSize: 12, fontFamily: 'KumbhSans_600SemiBold', color: '#BD93F9' },
+  goalsBtn: { backgroundColor: '#383A47', borderWidth: 1, borderColor: '#50FA7B', borderRadius: 14, height: 48, justifyContent: 'center', alignItems: 'center', marginHorizontal: 16, marginBottom: 16 },
+  goalsBtnText: { fontFamily: 'KumbhSans_700Bold', fontSize: 15, color: '#50FA7B' },
 });
