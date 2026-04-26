@@ -55,5 +55,8 @@ App (web or Android)
 ---
 
 ## Team
+Built by two CS/SE juniors at the University of Arizona:
 
-Built by two CS/SE juniors at the University of Arizona.
+  Rodolfo Robinson Bours (Software Engineering)
+  
+  Joshua Paul Carlson (Computer Science)
