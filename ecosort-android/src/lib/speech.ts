@@ -33,7 +33,7 @@ export const speak = async (text: string): Promise<void> => {
 
     const path = (FileSystem.cacheDirectory ?? '') + 'ecosort_speech.mp3';
     await FileSystem.writeAsStringAsync(path, json.audio, {
-      encoding: FileSystem.EncodingType.Base64,
+      encoding: 'base64' as any,
     });
 
     await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
