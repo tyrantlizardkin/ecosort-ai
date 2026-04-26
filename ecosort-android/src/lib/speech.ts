@@ -2,9 +2,9 @@ import * as FileSystem from 'expo-file-system';
 import { Audio } from 'expo-av';
 import { Alert } from 'react-native';
 
-const SUPABASE_URL = 'https://txdpuiukpicwxbzgpbdu.supabase.co';
+const SUPABASE_URL = 'https://siizqmfumpksoojubezr.supabase.co';
 const SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4ZHB1aXVrcGljd3hiemdwYmR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMzU0MzEsImV4cCI6MjA5MjcxMTQzMX0.KuX4mnOaj8ZOH0eMqv4UkYezyX0sbWy7_mrICOTQ1o0';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpaXpxbWZ1bXBrc29vanViZXpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNDg1MjQsImV4cCI6MjA5MjcyNDUyNH0.fL4DEToHk1uXFJKuyPa-jXBD6BDEpGyUZZYZqfvBvDA';
 
 export const speak = async (text: string): Promise<void> => {
   try {
